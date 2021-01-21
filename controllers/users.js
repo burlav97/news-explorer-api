@@ -86,7 +86,7 @@ const getInfo = (req, res, next) => {
 };
 
 module.exports = {
-  login,
   getInfo,
+  login,
   postUser,
 };
