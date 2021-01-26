@@ -1,10 +1,10 @@
 const Article = require('../models/article');
 const BadRequestError = require('../error/bad-request-err');
 const NotFoundError = require('../error/not-found-err');
+const ForbiddenError = require('../error/forbidden');
 
 const getArticles = (req, res, next) => {
-  Article.find({})
-    .populate(['owner'])
+  Article.find({ owner: req.user._id })
     .then((data) => res.send(data))
     .catch(next);
 };
@@ -46,20 +46,20 @@ const postArticle = (req, res, next) => {
 };
 
 const deleteArticle = (req, res, next) => {
-  const { artId } = req.params;
+  const { articleId } = req.params;
   const userId = req.user._id;
-  Article.findById(artId)
+  Article.findById(articleId)
     .populate('owner')
     .orFail(() => {
       throw new NotFoundError('Статья не найдена');
     })
     .then((art) => {
       if (art.owner._id.toString() === userId) {
-        Article.findByIdAndRemove(artId).then((newArt) => {
+        Article.findByIdAndRemove(articleId).then((newArt) => {
           res.send(newArt);
         });
       } else {
-        throw new BadRequestError('Нельзя удалять чужую статью');
+        throw new ForbiddenError('Недостаточно прав');
       }
     })
     .catch((err) => {

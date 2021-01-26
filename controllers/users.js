@@ -6,6 +6,7 @@ const BadRequestError = require('../error/bad-request-err');
 const NotFoundError = require('../error/not-found-err');
 const ConflictError = require('../error/conflict-error');
 const User = require('../models/user');
+const { JWT_SECRET } = require('../config/prod.js');
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
@@ -16,15 +17,14 @@ const login = (req, res, next) => {
     .select('+password')
     .then((user) => {
       if (!user) {
-        throw new AuthError('Неправильный email');
+        throw new AuthError('Неправильный email или пароль');
       }
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
             throw new AuthError('Неправильный пароль');
           }
-          const { NODE_ENV, JWT_SECRET } = process.env;
-          const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
+          const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
           return res.send({ token });
         })
         .catch(() => {
@@ -70,8 +70,9 @@ const postUser = (req, res, next) => {
       } else if (err.code === 11000) {
         const error = new ConflictError('Пользователь уже зарегестрирован');
         next(error);
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 

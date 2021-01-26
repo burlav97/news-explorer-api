@@ -14,7 +14,7 @@ router.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required(),
-    name: Joi.string().min(2).max(30),
+    name: Joi.string().min(2).max(30).required(),
   }),
 }), postUser);
 
@@ -27,7 +27,7 @@ router.post('/signin', celebrate({
 
 router.use(auth);
 router.use('/users', userRoutes);
-router.use('/aticles', artRoutes);
+router.use('/articles', artRoutes);
 
 router.use('*', () => { throw new NotFoundError('Запрашиваемый ресурс не найден'); });
 

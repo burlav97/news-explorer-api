@@ -10,7 +10,6 @@ router.get('/', getArticles);
 
 router.post('/', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
     keyword: Joi.string().required().min(2).max(30),
     title: Joi.string().required().min(2).max(30),
     text: Joi.string().required().min(2).max(30),
@@ -29,9 +28,9 @@ router.post('/', celebrate({
   }),
 }), postArticle);
 
-router.delete('/articleId ', celebrate({
+router.delete('/:articleId ', celebrate({
   params: Joi.object().keys({
-    artId: Joi.string().alphanum().length(24),
+    articleId: Joi.string().hex().length(24),
   }),
 }), deleteArticle);
 
