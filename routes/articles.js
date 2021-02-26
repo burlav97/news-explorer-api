@@ -6,9 +6,9 @@ const {
   deleteArticle,
 } = require('../controllers/articles');
 
-router.get('/', getArticles);
+router.get('/articles', getArticles);
 
-router.post('/', celebrate({
+router.post('/articles', celebrate({
   body: Joi.object().keys({
     keyword: Joi.string().required().min(2).max(30),
     title: Joi.string().required().min(2).max(30),
@@ -28,7 +28,7 @@ router.post('/', celebrate({
   }),
 }), postArticle);
 
-router.delete('/:articleId ', celebrate({
+router.delete('/articles/:articleId ', celebrate({
   params: Joi.object().keys({
     articleId: Joi.string().hex().length(24),
   }),
