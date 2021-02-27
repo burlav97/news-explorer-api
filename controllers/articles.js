@@ -31,16 +31,7 @@ const postArticle = (req, res, next) => {
     owner: _id,
   })
     .then((article) => {
-      res.send({
-        _id: article._id,
-        keyword: article.keyword,
-        title: article.title,
-        text: article.text,
-        date: article.date,
-        source: article.source,
-        link: article.link,
-        image: article.image,
-      });
+      res.send(article);
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
