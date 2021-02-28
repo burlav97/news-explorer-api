@@ -11,13 +11,11 @@ const artSchema = new mongoose.Schema({
     type: String,
     required: true,
     minLength: 2,
-    maxLength: 30,
   },
   text: {
     type: String,
     required: true,
     minLength: 2,
-    maxLength: 30,
   },
   data: {
     type: Date,
