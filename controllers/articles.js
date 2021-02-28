@@ -44,20 +44,32 @@ const postArticle = (req, res, next) => {
       next(err);
     });
 };
-
 const deleteArticle = (req, res, next) => {
-  Article.findById(req.params._id).select('+owner')
-    .then((article) => {
-      if (!article) {
-        throw new NotFoundError({ message: 'Статья не найдена'});
-      }
-      if (article.owner.toString() !== req.user._id) {
-        throw new ForbiddenError({ message: 'Недостаточно прав'});
-      }
-      article.remove();
-      res.send({ message: 'Удалена' });
+  const { articleId } = req.params;
+  const userId = req.user._id;
+  Article.findById(articleId)
+    .populate('owner')
+    .orFail(() => {
+      throw new NotFoundError('Статья не найдена');
     })
-    .catch(next);
+    .then((art) => {
+      if (art.owner._id.toString() === userId) {
+        Article.findByIdAndRemove(articleId).then((newArt) => {
+          res.send(newArt);
+        });
+      } else {
+        throw new ForbiddenError('Недостаточно прав');
+      }
+    })
+    .catch((err) => {
+      if (err.kind === 'ObjectId') {
+        const error = new BadRequestError('Невалидный id');
+        next(error);
+      } if (err.name === 'ValidationError') {
+        const error = new BadRequestError('Ошибка валидации');
+        next(error);
+      }
+      next(err);
+    });
 };
-
 module.exports = { getArticles, postArticle, deleteArticle };
